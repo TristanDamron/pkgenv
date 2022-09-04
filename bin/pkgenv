@@ -1,0 +1,2 @@
+#!/bin/sh
+../lib/python/bin/python3 ../src/main.py $*

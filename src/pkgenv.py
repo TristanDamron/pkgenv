@@ -2,8 +2,10 @@ from yaml import safe_load, dump
 from os import environ, path, mkdir, getlogin, system
 from platform import freedesktop_os_release
 from random import randrange
+from re import sub
 
-dot_pkgenv = '/home/{}/.pkgenv'.format(getlogin())
+user_home_path = '/home/{}'.format(getlogin())
+dot_pkgenv = '{}/.pkgenv'.format(user_home_path)
 config_yaml_path = '{}/config.yaml'.format(dot_pkgenv)
 
 def get_default_package_manager_for_distro():
@@ -122,4 +124,44 @@ def open_config_yaml_file():
     except:
         print('ERROR: Could not open {} using {}'.format(config_yaml_path, config_yaml_dict['preferred_editor']))
         return False
+    return True
+
+
+def change_path_in_bashrc(path):
+    lines = []
+    with open('{}/.bashrc'.format(user_home_path), 'r') as f:
+        lines = f.readlines()
+        updated_lines = []
+        for line in lines:
+            rewrite = sub(r'export PATH=.*', ''.format(path), line)
+            updated_lines.append(rewrite)
+        lines = updated_lines
+
+    with open('{}/.bashrc'.format(user_home_path), 'w+') as f:
+        f.write('{}export PATH={}'.format(''.join(updated_lines), path))
+
+
+def switch_to_package_environment(name):
+    if not name:
+        print('ERROR: No named package environment to switch to.')
+        return False
+    
+    config_yaml_dict = get_config_yaml_as_dict()
+
+    if not name == 'default' and not '{}/envs/{}'.format(dot_pkgenv, name) in config_yaml_dict['custom_environment_paths']:
+        print('ERROR: No such package environment `{}`.'.format(name))
+        return False
+
+    if name == 'default':
+        change_path_in_bashrc(config_yaml_dict['default_environment_path'])
+        config_yaml_dict['active_package_environment'] = 'default_environment_path'
+    else:
+        change_path_in_bashrc('{}/envs/{}'.format(dot_pkgenv, name))
+        config_yaml_dict['active_package_environment'] = environ['PATH']
+
+    write_config_yaml_from_dict(config_yaml_dict)
+    print("LOG: Successfully switched package environment to {}.".format(name))
+
+    if not name == 'default':
+        print("HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`".format(config_yaml_dict['default_environment_path']))
     return True

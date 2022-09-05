@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -50,8 +50,7 @@ if __name__ == "__main__":
         print(name)
     elif args.command == 'switch':
         name = args.name if args.name else args.n 
-        
-        print(name)
+        success = switch_to_package_environment(name)
     elif args.command == 'create':
         name = args.name if args.name else args.n 
         success = create_package_environment(name)

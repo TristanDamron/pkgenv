@@ -4,7 +4,7 @@ from platform import freedesktop_os_release
 from random import randrange
 
 dot_pkgenv = '/home/{}/.pkgenv'.format(getlogin())
-
+config_yaml_path = '{}/config.yaml'.format(dot_pkgenv)
 
 def get_default_package_manager_for_distro():
     system_ident = freedesktop_os_release()
@@ -31,7 +31,7 @@ def create_yaml_config_from_template():
 
     preferred_editor: 
     """.format(environ['PATH'], get_default_package_manager_for_distro())
-    with open('/home/{}/.pkgenv/config.yaml'.format(getlogin()), 'w') as f:
+    with open(config_yaml_path, 'w') as f:
         config_yaml = safe_load(config_yaml_template)
         dump(config_yaml, f)
 
@@ -45,15 +45,15 @@ def generate_semiunique_environment_name():
 
 
 def get_config_yaml_as_dict():
-    if not path.exists('{}/config.yaml'.format(dot_pkgenv)):
-        print('ERROR: Cannot load {}/config.yaml! Have you run `pkgenv create`?'.format(dot_pkgenv))
+    if not path.exists(config_yaml_path):
+        print('ERROR: Cannot load {}! Have you run `pkgenv create`?'.format(config_yaml_path))
         return None 
-    return safe_load(open('{}/config.yaml'.format(dot_pkgenv), 'r'))
+    return safe_load(open('{}'.format(config_yaml_path), 'r'))
 
 
 def write_config_yaml_from_dict(d):
     try:
-        with open('{}/config.yaml'.format(dot_pkgenv), 'w') as f:
+        with open('{}'.format(config_yaml_path), 'w') as f:
             dump(d, f)
         return True
     except:
@@ -68,12 +68,12 @@ def create_package_environment(name):
               'for systems with many package environments. Consider using `--name` next time.')
         name = generate_semiunique_environment_name()
 
-    if not path.exists(dot_pkgenv):
+    if not path.exists(config_yaml_path):
         print('LOG: No config.yaml file present in ~/.pkgenv, creating one now...')
         mkdir(dot_pkgenv)
         mkdir('{}/envs'.format(dot_pkgenv))
         create_yaml_config_from_template()
-        print('LOG: Success! Wrote {}/config.yaml'.format(dot_pkgenv))
+        print('LOG: Success! Wrote {}'.format(config_yaml_path))
         print('HINT: You can edit this config file at anytime by executing `pkgenv config`!')
 
     if not use_auto_generated_environment_name and path.exists('{}/envs/{}'.format(dot_pkgenv, name)):
@@ -96,7 +96,7 @@ def create_package_environment(name):
     config_yaml_dict['custom_environment_paths'].append('{}/envs/{}'.format(dot_pkgenv, name))
     success = write_config_yaml_from_dict(config_yaml_dict)
     if not success: 
-        print("ERROR: Failed to write new package environment path to {}/config.yaml!")
+        print('ERROR: Failed to write new package environment path to {}'.format(config_yaml_path))
 
     print('Created {}.'.format(name))
     return True
@@ -118,8 +118,8 @@ def open_config_yaml_file():
             config_yaml_dict['preferred_editor'] = 'nano'
         write_config_yaml_from_dict(config_yaml_dict)
     try:
-        system('{} {}/config.yaml'.format(config_yaml_dict['preferred_editor'], dot_pkgenv))
+        system('{} {}'.format(config_yaml_dict['preferred_editor'], config_yaml_path))
     except:
-        print('ERROR: Could not open {}/config.yaml using {}'.format(dot_pkgenv, config_yaml_dict['preferred_editor']))
+        print('ERROR: Could not open {} using {}'.format(config_yaml_path, config_yaml_dict['preferred_editor']))
         return False
     return True

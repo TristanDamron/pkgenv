@@ -1,8 +1,8 @@
 from pkgenv import create_package_environment, open_config_yaml_file
-import argparse
+from argparse import ArgumentParser
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='pkgenv <command> <flags>')
+    parser = ArgumentParser(description='pkgenv <command> <flags>')
     parser.add_argument('command', help='`create`: Initilizes a new package environment.\n' +
                                         '`config`: Opens the pkgenv yaml config file in Vim or Nano.\n' +
                                         '`add`: Install or add an existing package. Defaults to the active package environment.\n' +

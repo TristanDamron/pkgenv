@@ -53,8 +53,9 @@ if __name__ == "__main__":
         print(name)
     elif args.command == 'create':
         name = args.name if args.name else args.n 
-
-        print(name)
+        success = pkgenv.create_package_environment(name)
+        if not success: 
+            exit(1)
     elif args.command == 'config':
         print('config')
     elif args.command == 'which':

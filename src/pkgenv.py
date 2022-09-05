@@ -148,20 +148,18 @@ def switch_to_package_environment(name):
     
     config_yaml_dict = get_config_yaml_as_dict()
 
-    if not name == 'default' and not '{}/envs/{}'.format(dot_pkgenv, name) in config_yaml_dict['custom_environment_paths']:
-        print('ERROR: No such package environment `{}`.'.format(name))
-        return False
-
     if name == 'default':
         change_path_in_bashrc(config_yaml_dict['default_environment_path'])
         config_yaml_dict['active_package_environment'] = 'default_environment_path'
     else:
+        if not '{}/envs/{}'.format(dot_pkgenv, name) in config_yaml_dict['custom_environment_paths']:
+            print('ERROR: No such package environment `{}`.'.format(name))
+            return False
+
+        print("HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`".format(config_yaml_dict['default_environment_path']))
         change_path_in_bashrc('{}/envs/{}'.format(dot_pkgenv, name))
         config_yaml_dict['active_package_environment'] = environ['PATH']
 
     write_config_yaml_from_dict(config_yaml_dict)
     print("LOG: Successfully switched package environment to {}.".format(name))
-
-    if not name == 'default':
-        print("HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`".format(config_yaml_dict['default_environment_path']))
     return True

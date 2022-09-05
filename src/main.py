@@ -1,4 +1,4 @@
-import pkgenv
+from pkgenv import create_package_environment, open_config_yaml_file
 import argparse
 
 if __name__ == "__main__":
@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', help='Shorthand for --package.')
 
     args = parser.parse_args()
+    success = False
 
     if args.command == 'add':
         package = args.package if args.package else args.p
@@ -53,15 +54,16 @@ if __name__ == "__main__":
         print(name)
     elif args.command == 'create':
         name = args.name if args.name else args.n 
-        success = pkgenv.create_package_environment(name)
-        if not success: 
-            exit(1)
+        success = create_package_environment(name)
     elif args.command == 'config':
-        print('config')
+        success = open_config_yaml_file()
     elif args.command == 'which':
         print('which')
     else:
         print('ERROR: \'{}\' is not a valid command'.format(args.command))
+        success = False
+
+    if not success: 
         exit(1)
 
 exit(0)

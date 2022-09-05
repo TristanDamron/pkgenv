@@ -1,5 +1,5 @@
 from yaml import safe_load, dump
-from os import environ, path, mkdir, getlogin
+from os import environ, path, mkdir, getlogin, system
 from platform import freedesktop_os_release
 from random import randrange
 
@@ -28,6 +28,8 @@ def create_yaml_config_from_template():
     active_package_environment: default_environment_path
 
     system_package_managers: [{}]
+
+    preferred_editor: 
     """.format(environ['PATH'], get_default_package_manager_for_distro())
     with open('/home/{}/.pkgenv/config.yaml'.format(getlogin()), 'w') as f:
         config_yaml = safe_load(config_yaml_template)
@@ -43,6 +45,9 @@ def generate_semiunique_environment_name():
 
 
 def get_config_yaml_as_dict():
+    if not path.exists('{}/config.yaml'.format(dot_pkgenv)):
+        print('ERROR: Cannot load {}/config.yaml! Have you run `pkgenv create`?'.format(dot_pkgenv))
+        return None 
     return safe_load(open('{}/config.yaml'.format(dot_pkgenv), 'r'))
 
 
@@ -94,4 +99,27 @@ def create_package_environment(name):
         print("ERROR: Failed to write new package environment path to {}/config.yaml!")
 
     print('Created {}.'.format(name))
+    return True
+
+def open_config_yaml_file():
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
+
+    if not config_yaml_dict['preferred_editor']:
+        print('WARN: You haven\'t set a preferred editor to open your config.yaml file!')
+        ans = input('Would you prefer to use (V)im or (N)ano? ')
+        while not ans.lower() in ['v', 'n']:
+            ans = input('Would you prefer to use (V)im or (N)ano? ')
+
+        if ans.lower() == 'v':
+            config_yaml_dict['preferred_editor'] = 'vim'
+        elif ans.lower() == 'n':
+            config_yaml_dict['preferred_editor'] = 'nano'
+        write_config_yaml_from_dict(config_yaml_dict)
+    try:
+        system('{} {}/config.yaml'.format(config_yaml_dict['preferred_editor'], dot_pkgenv))
+    except:
+        print('ERROR: Could not open {}/config.yaml using {}'.format(dot_pkgenv, config_yaml_dict['preferred_editor']))
+        return False
     return True

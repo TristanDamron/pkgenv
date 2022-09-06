@@ -27,7 +27,6 @@ if __name__ == "__main__":
         package = args.package if args.package else args.p
         manager = args.manager if args.manager else args.m
         name = args.name if args.name else args.n 
-
         success = add_package(package, name, manager)
     elif args.command == 'remove':
         package = args.package if args.package else args.p

@@ -22,6 +22,7 @@ def does_package_environment_exist(name):
             return True
     return False
 
+
 def get_default_package_manager_for_distro():
     system_ident = freedesktop_os_release()
     if 'ubuntu' in system_ident['ID'] or 'debian' in system_ident['ID']:
@@ -127,6 +128,7 @@ def create_package_environment(name):
     print('Created {}.'.format(name))
     return True
 
+
 def open_config_yaml_file():
     config_yaml_dict = get_config_yaml_as_dict()
     if not config_yaml_dict:
@@ -182,12 +184,12 @@ def switch_to_package_environment(name):
             print('ERROR: No such package environment `{}`.'.format(name))
             return False
 
-        print("HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`".format(config_yaml_dict['default_environment_path']))
+        print('HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`'.format(config_yaml_dict['default_environment_path']))
         change_path_in_bashrc('{}/envs/{}'.format(dot_pkgenv, name))
         config_yaml_dict['active_package_environment'] = '{}/envs/{}'.format(dot_pkgenv, name)
 
     write_config_yaml_from_dict(config_yaml_dict)
-    print("LOG: Successfully switched package environment to {}.".format(name))
+    print('LOG: Successfully switched package environment to {}.'.format(name))
     return True
 
 
@@ -281,6 +283,7 @@ def add_package(package, pkgenv, manager=None):
         print('ERROR: Cannot find package `{}`.'.format(package)) 
         return False 
 
+
 def purge_package_environment(name):
     config_yaml_dict = get_config_yaml_as_dict()
     if not config_yaml_dict:
@@ -332,6 +335,7 @@ def purge_package_environment(name):
         write_config_yaml_from_dict(config_yaml_dict)
         print('LOG: Successfully purged `{}`.'.format(name))
     return True
+
 
 def get_active_package_environment():
     config_yaml_dict = get_config_yaml_as_dict()

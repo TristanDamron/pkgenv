@@ -328,3 +328,9 @@ def purge_package_environment(name):
         write_config_yaml_from_dict(config_yaml_dict)
         print('LOG: Successfully purged `{}`.'.format(name))
     return True
+
+def get_active_package_environment():
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return None
+    return config_yaml_dict['active_package_environment']

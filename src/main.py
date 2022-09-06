@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment, get_active_package_environment
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -54,7 +54,9 @@ if __name__ == "__main__":
     elif args.command == 'config':
         success = open_config_yaml_file()
     elif args.command == 'which':
-        print('which')
+        active_package_environment = get_active_package_environment()
+        print(active_package_environment)
+        success = True if active_package_environment else False 
     else:
         print('ERROR: \'{}\' is not a valid command'.format(args.command))
         success = False

@@ -1,5 +1,6 @@
 from yaml import safe_load, dump
 from os import environ, path, mkdir, getlogin, system
+from subprocess import Popen, DEVNULL, PIPE
 from platform import freedesktop_os_release
 from random import randrange
 from re import sub
@@ -8,11 +9,24 @@ user_home_path = '/home/{}'.format(getlogin())
 dot_pkgenv = '{}/.pkgenv'.format(user_home_path)
 config_yaml_path = '{}/config.yaml'.format(dot_pkgenv)
 
+
+def does_package_environment_exist(name):
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
+    if not config_yaml_dict['custom_environment_paths']:
+        return False
+
+    for path in config_yaml_dict['custom_environment_paths']:
+        if name == path.split('/')[-1]:
+            return True
+    return False
+
 def get_default_package_manager_for_distro():
     system_ident = freedesktop_os_release()
     if 'ubuntu' in system_ident['ID'] or 'debian' in system_ident['ID']:
         return 'apt-get'
-    elif 'opensuse' in system_ident['ID']:
+    elif 'opensuse' in system_ident['ID']: 
         return 'zypper'
     elif 'arch' in system_ident['ID']:
         return 'pacman'
@@ -69,7 +83,6 @@ def create_package_environment(name):
         print('WARN: Creating a new package environment without a unique name is not encouraged, particularly ' + 
               'for systems with many package environments. Consider using `--name` next time.')
         name = generate_semiunique_environment_name()
-
     if not path.exists(config_yaml_path):
         print('LOG: No config.yaml file present in ~/.pkgenv, creating one now...')
         mkdir(dot_pkgenv)
@@ -93,12 +106,19 @@ def create_package_environment(name):
             tries += 1
 
     mkdir('{}/envs/{}'.format(dot_pkgenv, name))
-
     config_yaml_dict = get_config_yaml_as_dict()
     config_yaml_dict['custom_environment_paths'].append('{}/envs/{}'.format(dot_pkgenv, name))
     success = write_config_yaml_from_dict(config_yaml_dict)
     if not success: 
         print('ERROR: Failed to write new package environment path to {}'.format(config_yaml_path))
+        return False
+
+    add_package('pkgenv', name)
+    add_package('which', name)
+    add_package('readlink', name)
+    add_package('dirname', name)
+    if config_yaml_dict['preferred_editor']:
+        add_package(config_yaml_dict['preferred_editor'], name)
 
     print('Created {}.'.format(name))
     return True
@@ -147,19 +167,112 @@ def switch_to_package_environment(name):
         return False
     
     config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
 
     if name == 'default':
         change_path_in_bashrc(config_yaml_dict['default_environment_path'])
         config_yaml_dict['active_package_environment'] = 'default_environment_path'
     else:
-        if not '{}/envs/{}'.format(dot_pkgenv, name) in config_yaml_dict['custom_environment_paths']:
+        if not does_package_environment_exist(name):
             print('ERROR: No such package environment `{}`.'.format(name))
             return False
 
         print("HINT: Your default PATH is {}. You can switch back by executing `pkgenv switch --name default`".format(config_yaml_dict['default_environment_path']))
         change_path_in_bashrc('{}/envs/{}'.format(dot_pkgenv, name))
-        config_yaml_dict['active_package_environment'] = environ['PATH']
+        config_yaml_dict['active_package_environment'] = '{}/envs/{}'.format(dot_pkgenv, name)
 
     write_config_yaml_from_dict(config_yaml_dict)
     print("LOG: Successfully switched package environment to {}.".format(name))
     return True
+
+
+def is_package_manager_supported(manager):
+    supported_package_managers = ['apt-get', 'zypper', 'apk', 'pacman', 'pip', 'gem']
+    return True if manager in supported_package_managers else False
+
+
+def install_with_package_manager(manager, package):
+    if not is_package_manager_supported(manager):
+        print('ERROR: Package manager `{}` is not supported by this version of pkgenv.'.format(manager))
+        return False
+
+    success = False 
+    print('LOG: Installing with `{}`'.format(manager)) 
+    if manager == 'apt-get':
+        success = True if system('apt-get install {}'.format(package)) else False
+    elif manager == 'apk':
+        success = True if system('apk add {}'.format(package)) else False
+    elif manager == 'zypper':
+        success = True if system('zypper install {}'.format(package)) else False
+    elif manager == 'pacman':
+        success = True if system('pacman -S {}'.format(package)) else False
+    elif manager == 'pip':
+        success = True if system('python3 -m pip install {}'.format(package)) else False
+    elif manager == 'gem':
+        success = True if system('gem install {}'.format(package)) else False
+
+    return success
+
+
+def add_package(package, pkgenv, manager=None):
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
+
+    if not does_package_environment_exist(pkgenv):
+        print('ERROR: No such package environment `{}`.'.format(pkgenv))
+        return False
+
+    active_package_environment = config_yaml_dict['active_package_environment']
+    if not active_package_environment == 'default_environment_path':
+        print('WARN: You are not currently in the default package environment. It is strongly recommended that you ' +
+              'run this command with the default package environement active. Proceed at your own risk.')
+        print('HINT: Execute `pkgenv switch --name default` to go back to the default package environment.')
+
+    packages_managers = config_yaml_dict['system_package_managers']
+    is_installed = True if system('which {}'.format(package)) == 0 else False
+
+    if not is_installed and not manager:
+        ans = input('LOG: No such package `{}`, would you like to install it? (Y/N) '.format(package))
+        while ans.lower() not in ['y', 'n']:
+            ans = input('LOG: No such package `{}`, would you like to install it? (Y/N) '.format(package))
+        if ans == 'n':
+            print('LOG: OK, will not install package `{}`.'.format(package))
+            return True 
+        elif ans == 'y':
+            print('LOG: Known package managers: {}'.format(packages_managers))
+            ans = input('LOG: Which package manager do you want to use to install `{}`? '.format(package))
+            while ans not in packages_managers:
+                print('LOG: Known package managers: {}'.format(packages_managers))
+                ans = input('LOG: Which package manager do you want to use to install `{}`? '.format(package))
+            
+            install_with_package_manager(ans, package)
+
+    elif not is_installed and manager:
+        if manager not in packages_managers:
+            print('ERROR: Package manager `{}` is unknown to pkgenv.'.format(manager))
+            print('HINT: If you know that this manager is installed and is supported by pkgenv, you can add it to system_package_managers with `pkgenv config`.')
+            return False
+        
+        install_with_package_manager(manager, package)
+    
+    print('LOG: `which {}`'.format(package))
+    out, errs = Popen(['which', package], stdout=PIPE, stderr=PIPE).communicate()
+    if errs:
+        print('ERROR: An unexpected error occured: `{}`'.format(errs.decode('utf-8')))
+        return False
+
+    pkg_path = out.decode('utf-8').replace('\n', '')
+    if path.exists(pkg_path):
+        print('LOG: `Linking {} to {}/envs/{}`'.format(pkg_path, dot_pkgenv, pkgenv))
+        success = system('ln -s {} {}/envs/{}'.format(pkg_path, dot_pkgenv, pkgenv))
+        if success == 0:
+            print('LOG: Successfully added `{}` to `{}`.'.format(package, pkgenv))
+            return True
+        else:
+            print('ERROR: Failed to add `{}` to `{}`.'.format(package, pkgenv))
+            return False
+    else:
+        print('ERROR: Cannot find package `{}`.'.format(package)) 
+        return False 

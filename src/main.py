@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -31,9 +31,7 @@ if __name__ == "__main__":
         manager = args.manager if args.manager else args.m
         name = args.name if args.name else args.n 
 
-        print(package)
-        print(manager)
-        print(name)
+        success = add_package(package, name, manager)
     elif args.command == 'remove':
         package = args.package if args.package else args.p
         manager = args.manager if args.manager else args.m

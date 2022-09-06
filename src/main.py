@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment, get_active_package_environment
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment, get_active_package_environment, update_default_environment_path_to_current_PATH
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -9,7 +9,8 @@ if __name__ == "__main__":
                                         '`remove`: Uninstalls or removes a package. Defaults to the active package environment.\n' +
                                         '`purge`: Destroy a package environment (moves all packages back to the default environment).\n' +
                                         '`switch`: Change the active package environment.\n' +
-                                        '`which`: Get the name of the active package environment.')
+                                        '`which`: Get the name of the active package environment.\n' +
+                                        '`path`: Update the default_environment_path to equal the system\'s $PATH.')
     parser.add_argument('--manager', help='The package manager you want to use to install packages to ' + 
                                         'the package environment. Defaults to the system\'s package ' + 
                                         'manager. Use with the add/remove commands.' )
@@ -57,6 +58,9 @@ if __name__ == "__main__":
         active_package_environment = get_active_package_environment()
         print(active_package_environment)
         success = True if active_package_environment else False 
+    elif args.command == 'path':
+        updated_path = update_default_environment_path_to_current_PATH()
+        success = True if updated_path else False
     else:
         print('ERROR: \'{}\' is not a valid command'.format(args.command))
         success = False

@@ -334,3 +334,13 @@ def get_active_package_environment():
     if not config_yaml_dict:
         return None
     return config_yaml_dict['active_package_environment']
+
+
+def update_default_environment_path_to_current_PATH():
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return None
+    config_yaml_dict['default_environment_path'] = environ['PATH']
+    write_config_yaml_from_dict(config_yaml_dict)
+    print('LOG: Updated default_environment_path to `{}`.'.format(config_yaml_dict['default_environment_path']))
+    return config_yaml_dict['default_environment_path']

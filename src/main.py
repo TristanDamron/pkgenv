@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -44,8 +44,7 @@ if __name__ == "__main__":
         print(save)
     elif args.command == 'purge':
         name = args.name if args.name else args.n 
-
-        print(name)
+        success = purge_package_environment(name)
     elif args.command == 'switch':
         name = args.name if args.name else args.n 
         success = switch_to_package_environment(name)

@@ -1,5 +1,5 @@
 from yaml import safe_load, dump
-from os import environ, path, mkdir, getlogin, system
+from os import environ, path, mkdir, getlogin, system, walk, remove, rmdir
 from subprocess import Popen, DEVNULL, PIPE
 from platform import freedesktop_os_release
 from random import randrange
@@ -276,3 +276,55 @@ def add_package(package, pkgenv, manager=None):
     else:
         print('ERROR: Cannot find package `{}`.'.format(package)) 
         return False 
+
+def purge_package_environment(name):
+    config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
+
+    if not name:
+        print('ERROR: No named package environment to purge.')
+        return False
+
+    if not does_package_environment_exist(name):
+        print('ERROR: No such package environment `{}`.'.format(name))
+        return False
+
+    ans = input('WARN: Are you sure you want to purge your package environment? The package environment will be completely destroyed ' +
+          'but all of the packages on your system will remain on disk. This operation is not reversible. (Y/N) ')
+    while ans.lower() not in ['y', 'n']:
+        ans = input('WARN: Are you sure you want to purge your environment? The environment will be completely removed from your system ' +
+                    'but all of the packages on your system will remain on disk. (Y/N) ')
+    if ans == 'n':
+        print('LOG: OK, not purging `{}`.'.format(name))
+    elif ans == 'y':
+        print('LOG: Purging {}...'.format(name))
+        environment_path = ''
+        for env in config_yaml_dict['custom_environment_paths']:
+            if name == env.split('/')[-1]:
+                environment_path = env
+                break
+
+        if environment_path == config_yaml_dict['active_package_environment']:
+            config_yaml_dict['active_package_environment'] = 'default_environment_path'
+
+        config_yaml_dict['custom_environment_paths'].remove(environment_path)
+
+        for root, dirs, files in walk(environment_path): # there should be no subdirs in the package environment
+            for file in files:
+                remove(path.join(root, file))
+            break
+        try:
+            rmdir(environment_path)
+        except FileNotFoundError():
+            print('ERROR: Failed to delete directory `{}`. Directory does not exist.'.format(environment_path))
+            return False
+        except OSError():
+            print('ERROR: Failed to delete directory `{}`. Directory not empty.'.format(environment_path))
+            print('HINT: Something unexpected was found during the purge. Remove any subdirectories in your ' +
+                  'environment and try again.')
+            return False
+
+        write_config_yaml_from_dict(config_yaml_dict)
+        print('LOG: Successfully purged `{}`.'.format(name))
+    return True

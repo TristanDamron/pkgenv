@@ -79,6 +79,10 @@ def write_config_yaml_from_dict(d):
 def create_package_environment(name):
     use_auto_generated_environment_name = True if not name else False
 
+    if name == 'default':
+        print('ERROR: `default` is protected. Choose another name for your package environment.')
+        return False
+
     if use_auto_generated_environment_name:
         print('WARN: Creating a new package environment without a unique name is not encouraged, particularly ' + 
               'for systems with many package environments. Consider using `--name` next time.')

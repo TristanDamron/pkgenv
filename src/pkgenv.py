@@ -344,3 +344,26 @@ def update_default_environment_path_to_current_PATH():
     write_config_yaml_from_dict(config_yaml_dict)
     print('LOG: Updated default_environment_path to `{}`.'.format(config_yaml_dict['default_environment_path']))
     return config_yaml_dict['default_environment_path']
+
+
+def remove_package_from_package_environment(package, pkgenv):
+    if not does_package_environment_exist(pkgenv):
+        print('ERROR: No such package environment `{}`.'.format(pkgenv))
+        return False
+
+    if not package:
+        print('ERROR: No package to remove.')
+        return False
+
+    package_path = '{}/envs/{}/{}'.format(dot_pkgenv, pkgenv, package)
+    try:
+        remove(package_path)
+    except FileNotFoundError():
+        print('ERROR: No such package `{}` in `{}`.'.format(package, pkgenv))
+        return False
+    except OSError():
+        print('ERROR: An unknown error occurred.')
+        return False
+
+    print('LOG: Successfully removed `{}` from `{}`.'.format(package, pkgenv))
+    return True

@@ -1,4 +1,4 @@
-# Package Env 0.1.0
+# Package Env 0.2.0
 Package Env (abbreviated as pkgenv) is a better way to do package management for Linux systems. Package Env allows you to create user space package environments by isolating system packages on a variety of Linux distributions.
 
 Originally hacked together by Tristan Damron over Labor Day Weekend 2022

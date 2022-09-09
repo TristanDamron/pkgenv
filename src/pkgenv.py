@@ -147,6 +147,10 @@ def open_config_yaml_file():
         write_config_yaml_from_dict(config_yaml_dict)
     try:
         system('{} {}'.format(config_yaml_dict['preferred_editor'], config_yaml_path))
+        config_yaml_dict = get_config_yaml_as_dict()
+        for package_manager in config_yaml_dict['system_package_managers']:
+            if not is_package_manager_supported(package_manager):
+                print('WARN: Package manager `{}` is not supported with this release of pkgenv.'.format(package_manager))
     except:
         print('ERROR: Could not open {} using {}'.format(config_yaml_path, config_yaml_dict['preferred_editor']))
         return False

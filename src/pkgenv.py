@@ -61,8 +61,14 @@ def generate_semiunique_environment_name():
                              animals[randrange(0, len(animals) - 1)], number)
 
 
-def get_config_yaml_as_dict():
+def does_config_yaml_exist():
     if not path.exists(config_yaml_path):
+        return False
+    return True
+
+
+def get_config_yaml_as_dict():
+    if not does_config_yaml_exist():
         print('ERROR: Cannot load {}! Have you run `pkgenv create`?'.format(config_yaml_path))
         return None 
     return safe_load(open('{}'.format(config_yaml_path), 'r'))
@@ -130,8 +136,7 @@ def create_package_environment(name):
 
 
 def open_config_yaml_file():
-    config_yaml_dict = get_config_yaml_as_dict()
-    if not config_yaml_dict:
+   if not does_config_yaml_exist():
         return False
 
     if not config_yaml_dict['preferred_editor']:

@@ -136,7 +136,7 @@ def create_package_environment(name):
 
 
 def open_config_yaml_file():
-   if not does_config_yaml_exist():
+    if not does_config_yaml_exist():
         return False
 
     if not config_yaml_dict['preferred_editor']:

@@ -88,10 +88,14 @@ def create_package_environment(name):
         print('WARN: Creating a new package environment without a unique name is not encouraged, particularly ' + 
               'for systems with many package environments. Consider using `--name` next time.')
         name = generate_semiunique_environment_name()
+
+    if not path.exists(dot_pkgenv):
+        mkdir(dot_pkgenv)
+    if not path.exists('{}/envs'.format(dot_pkgenv)):
+        mkdir('{}/envs'.format(dot_pkgenv))
+
     if not path.exists(config_yaml_path):
         print('LOG: No config.yaml file present in ~/.pkgenv, creating one now...')
-        mkdir(dot_pkgenv)
-        mkdir('{}/envs'.format(dot_pkgenv))
         create_yaml_config_from_template()
         print('LOG: Success! Wrote {}'.format(config_yaml_path))
         print('HINT: You can edit this config file at anytime by executing `pkgenv config`!')

@@ -1,4 +1,4 @@
-# Package Env 0.1.0
+# Package Env 0.1.1
 Package Env (abbreviated as pkgenv) is a better way to do package management for Linux systems. Package Env allows you to create user space package environments by isolating system packages on a variety of Linux distributions.
 
 Originally hacked together by Tristan Damron over Labor Day Weekend 2022
@@ -29,6 +29,10 @@ Package Env supports the following package managers:
 Note that installing a package with `pkgenv add --package {your package}` will only perform a simple installation. For more complex use cases, stick to installing stuff with your system's package managers rather than installing through pkgenv.
 
 # User Guide
+
+## Dependencies
+
+Package Env is written in Python and requires that you have Python 3.10 installed on your system. Additionally, Package Env depends on GNU system utils such as `which`, `readlink`, and `dirname` to function. Because of this, Package Env does not support BSD based systems. Vim and/or Nano are also strongly recommended to properly configure your Package Env config.yaml file.
 
 ## Installation
 

@@ -125,7 +125,7 @@ def create_package_environment(name):
     if config_yaml_dict['preferred_editor']:
         add_package(config_yaml_dict['preferred_editor'], name)
 
-    print('Created {}.'.format(name))
+    print('LOG: Created {}.'.format(name))
     return True
 
 
@@ -136,9 +136,9 @@ def open_config_yaml_file():
 
     if not config_yaml_dict['preferred_editor']:
         print('WARN: You haven\'t set a preferred editor to open your config.yaml file!')
-        ans = input('Would you prefer to use (V)im or (N)ano? ')
+        ans = input('LOG: Would you prefer to use (V)im or (N)ano? ')
         while not ans.lower() in ['v', 'n']:
-            ans = input('Would you prefer to use (V)im or (N)ano? ')
+            ans = input('LOG: Would you prefer to use (V)im or (N)ano? ')
 
         if ans.lower() == 'v':
             config_yaml_dict['preferred_editor'] = 'vim'

@@ -1,4 +1,5 @@
 #!/bin/sh
-python3 -m venv $(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")lib/python
-ln -s $(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")bin/pkgenv /usr/local/bin/pkgenv
-$(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")lib/python/bin/python3 -m pip install -r requirements.txt
+pkgenvdir=$(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")
+python3 -m venv ${pkgenvdir}lib/python
+ln -s ${pkgenvdir}bin/pkgenv /usr/local/bin/pkgenv
+${pkgenvdir}lib/python/bin/python3 -m pip install -r requirements.txt

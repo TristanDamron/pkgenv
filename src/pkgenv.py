@@ -385,6 +385,7 @@ def remove_package_from_package_environment(package, pkgenv):
     print('LOG: Successfully removed `{}` from `{}`.'.format(package, pkgenv))
     return True
 
+
 def show_envs():
     if not path.exists('{}/envs'.format(dot_pkgenv)):
         print('ERROR: No such directory `{}/envs`'.format(dot_pkgenv))
@@ -403,4 +404,15 @@ def show_envs():
     if no_results:
         print('LOG: No package environments found in `{}/envs`'.format(dot_pkgenv))
 
+    return True
+
+
+def register_env(pth):
+    if pth[-1] == '/': # strip away trailing slash, if it exists
+        pth = pth[0:len(pth) - 1]
+    name = pth.split('/')[-1]
+    successfully_created_pkgenv = create_package_environment(name)
+    if not successfully_created_pkgenv:
+        return False
+    system('cp {}/* {}/envs/{}'.format(pth, dot_pkgenv, name))
     return True

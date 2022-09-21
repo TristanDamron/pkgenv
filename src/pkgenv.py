@@ -384,3 +384,23 @@ def remove_package_from_package_environment(package, pkgenv):
 
     print('LOG: Successfully removed `{}` from `{}`.'.format(package, pkgenv))
     return True
+
+def show_envs():
+    if not path.exists('{}/envs'.format(dot_pkgenv)):
+        print('ERROR: No such directory `{}/envs`'.format(dot_pkgenv))
+        return False
+
+    no_results = True
+    for root, dirs, files in walk('{}/envs'.format(dot_pkgenv)):
+        for directory in dirs:
+            no_results = False
+            is_known = does_package_environment_exist(directory)
+            if not is_known:
+                print('WARN: Found directory `{}`, but it is not known to pkgenv. You can add it as a known package environment with the `register` command.'.format(directory))
+            else:
+                print('LOG: {}'.format(directory))
+
+    if no_results:
+        print('LOG: No package environments found in `{}/envs`'.format(dot_pkgenv))
+
+    return True

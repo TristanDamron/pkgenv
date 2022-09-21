@@ -1,4 +1,4 @@
-from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment, get_active_package_environment, update_default_environment_path_to_current_PATH, remove_package_from_package_environment
+from pkgenv import create_package_environment, open_config_yaml_file, switch_to_package_environment, add_package, purge_package_environment, get_active_package_environment, update_default_environment_path_to_current_PATH, remove_package_from_package_environment, show_envs
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
@@ -10,7 +10,8 @@ if __name__ == "__main__":
                                         '`purge`: Destroy a package environment (moves all packages back to the default environment).\n' +
                                         '`switch`: Change the active package environment.\n' +
                                         '`which`: Get the name of the active package environment.\n' +
-                                        '`path`: Update the default_environment_path to equal the system\'s $PATH.')
+                                        '`path`: Update the default_environment_path to equal the system\'s $PATH.\n' +
+                                        '`envs`: List all package environments in ~/.pkgenv/envs.')
     parser.add_argument('--manager', help='The package manager you want to use to install packages to ' + 
                                         'the package environment. Defaults to the system\'s package ' + 
                                         'manager. Use with the add commands.' )
@@ -50,6 +51,8 @@ if __name__ == "__main__":
     elif args.command == 'path':
         updated_path = update_default_environment_path_to_current_PATH()
         success = True if updated_path else False
+    elif args.command == 'envs':
+        success = show_envs()
     else:
         print('ERROR: \'{}\' is not a valid command'.format(args.command))
         success = False

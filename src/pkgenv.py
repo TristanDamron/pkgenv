@@ -140,10 +140,9 @@ def create_package_environment(name):
 
 
 def open_config_yaml_file():
-    if not does_config_yaml_exist():
-        return False
-
     config_yaml_dict = get_config_yaml_as_dict()
+    if not config_yaml_dict:
+        return False
 
     if not config_yaml_dict['preferred_editor']:
         print('WARN: You haven\'t set a preferred editor to open your config.yaml file!')

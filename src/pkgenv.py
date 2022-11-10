@@ -100,7 +100,7 @@ def create_package_environment(name):
     if not path.exists('{}/envs'.format(dot_pkgenv)):
         mkdir('{}/envs'.format(dot_pkgenv))
 
-    if not path.exists(config_yaml_path):
+    if not does_config_yaml_exist():
         print('LOG: No config.yaml file present in ~/.pkgenv, creating one now...')
         create_yaml_config_from_template()
         print('LOG: Success! Wrote {}'.format(config_yaml_path))

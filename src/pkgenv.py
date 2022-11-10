@@ -143,6 +143,8 @@ def open_config_yaml_file():
     if not does_config_yaml_exist():
         return False
 
+    config_yaml_dict = get_config_yaml_as_dict()
+
     if not config_yaml_dict['preferred_editor']:
         print('WARN: You haven\'t set a preferred editor to open your config.yaml file!')
         ans = input('LOG: Would you prefer to use (V)im or (N)ano? ')
@@ -156,7 +158,6 @@ def open_config_yaml_file():
         write_config_yaml_from_dict(config_yaml_dict)
     try:
         system('{} {}'.format(config_yaml_dict['preferred_editor'], config_yaml_path))
-        config_yaml_dict = get_config_yaml_as_dict()
         for package_manager in config_yaml_dict['system_package_managers']:
             if not is_package_manager_supported(package_manager):
                 print('WARN: Package manager `{}` is not supported with this release of pkgenv.'.format(package_manager))

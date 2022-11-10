@@ -30,6 +30,10 @@ Note that installing a package with `pkgenv add --package {your package}` will o
 
 # User Guide
 
+## Dependencies
+
+Package Env is written in Python and requires that you have Python 3.5 (or better) installed on your system. Additionally, Package Env depends on GNU system utils such as `which`, `readlink`, and `dirname` to function. Because of this, Package Env does not support BSD based systems. Vim and/or Nano are also strongly recommended to properly configure your Package Env config.yaml file.
+
 ## Installation
 
 1. Clone this repository somewhere on your hard drive.

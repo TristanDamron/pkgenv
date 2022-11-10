@@ -128,12 +128,15 @@ def create_package_environment(name):
         print('ERROR: Failed to write new package environment path to {}'.format(config_yaml_path))
         return False
 
-    add_package('pkgenv', name)
-    add_package('which', name)
-    add_package('readlink', name)
-    add_package('dirname', name)
+    pkgenv_essentials = open('../src/pkgenv_essentials', 'r').read().splitlines()
+    for pkg in pkgenv_essentials:
+        add_package(pkg, name)
+
     if config_yaml_dict['preferred_editor']:
         add_package(config_yaml_dict['preferred_editor'], name)
+
+    for package_manager in config_yaml_dict['system_package_managers']:
+        add_package(package_manager, name)
 
     print('LOG: Created {}.'.format(name))
     return True

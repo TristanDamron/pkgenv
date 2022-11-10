@@ -336,10 +336,10 @@ def purge_package_environment(name):
             break
         try:
             rmdir(environment_path)
-        except FileNotFoundError():
+        except FileNotFoundError:
             print('ERROR: Failed to delete directory `{}`. Directory does not exist.'.format(environment_path))
             return False
-        except OSError():
+        except OSError:
             print('ERROR: Failed to delete directory `{}`. Directory not empty.'.format(environment_path))
             print('HINT: Something unexpected was found during the purge. Remove any subdirectories in your ' +
                   'environment and try again.')
@@ -379,10 +379,10 @@ def remove_package_from_package_environment(package, pkgenv):
     package_path = '{}/envs/{}/{}'.format(dot_pkgenv, pkgenv, package)
     try:
         remove(package_path)
-    except FileNotFoundError():
+    except FileNotFoundError:
         print('ERROR: No such package `{}` in `{}`.'.format(package, pkgenv))
         return False
-    except OSError():
+    except OSError:
         print('ERROR: An unknown error occurred.')
         return False
 
